@@ -3,32 +3,34 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
 document.querySelector('#app').innerHTML = `
-  <div class="title-card">
+  <header class="title-card">
     <h1>Watch Paint Dry</h1>
-    <p class="subtitle">Paint in 3D space • Scroll wheel for depth • Drag to rotate</p>
-  </div>
-  <div id="depth-indicator">
-    <div class="depth-bar">
-      <div class="depth-marker"></div>
+    <p class="subtitle">Paint in 3D space • Mouse/Arrows to move • Scroll/W-S for depth • Space to paint</p>
+  </header>
+  <main>
+    <div id="depth-indicator" aria-hidden="true">
+      <div class="depth-bar">
+        <div class="depth-marker"></div>
+      </div>
+      <span class="depth-label">Depth</span>
     </div>
-    <span class="depth-label">Depth</span>
-  </div>
-  <div id="canvas-container"></div>
-  <div class="controls">
-    <div class="color-btn active" style="background: #FF1744" data-color="#FF1744"></div>
-    <div class="color-btn" style="background: #FF6F00" data-color="#FF6F00"></div>
-    <div class="color-btn" style="background: #00E5FF" data-color="#00E5FF"></div>
-    <div class="color-btn" style="background: #2979FF" data-color="#2979FF"></div>
-    <div class="color-btn" style="background: #D500F9" data-color="#D500F9"></div>
-    <div class="color-btn" style="background: #76FF03" data-color="#76FF03"></div>
-    <div class="color-btn" style="background: #000000" data-color="#000000"></div>
-    <button class="tool-btn" id="clear-btn">Clear</button>
-    <button class="tool-btn" id="rotate-btn">Auto Rotate</button>
-    <div class="speed-control">
-      <span class="label">Speed</span>
-      <input type="range" id="speed-slider" min="0" max="50" value="1" step="0.1">
-    </div>
-  </div>
+    <div id="canvas-container" role="img" aria-label="3D Painting Canvas. Use mouse to paint, scroll for depth."></div>
+    <nav class="controls" aria-label="Painting Controls">
+      <button class="color-btn active" style="background: #FF1744" data-color="#FF1744" aria-label="Red Paint" title="Red Paint"></button>
+      <button class="color-btn" style="background: #FF6F00" data-color="#FF6F00" aria-label="Orange Paint" title="Orange Paint"></button>
+      <button class="color-btn" style="background: #00E5FF" data-color="#00E5FF" aria-label="Cyan Paint" title="Cyan Paint"></button>
+      <button class="color-btn" style="background: #2979FF" data-color="#2979FF" aria-label="Blue Paint" title="Blue Paint"></button>
+      <button class="color-btn" style="background: #D500F9" data-color="#D500F9" aria-label="Purple Paint" title="Purple Paint"></button>
+      <button class="color-btn" style="background: #76FF03" data-color="#76FF03" aria-label="Green Paint" title="Green Paint"></button>
+      <button class="color-btn" style="background: #000000" data-color="#000000" aria-label="Black Paint" title="Black Paint"></button>
+      <button class="tool-btn" id="clear-btn" aria-label="Clear Canvas">Clear</button>
+      <button class="tool-btn" id="rotate-btn" aria-label="Toggle Auto Rotate">Auto Rotate</button>
+      <div class="speed-control">
+        <label for="speed-slider" class="label">Speed</label>
+        <input type="range" id="speed-slider" min="0" max="50" value="1" step="0.1" aria-label="Rotation Speed">
+      </div>
+    </nav>
+  </main>
 `
 
 // Three.js setup
@@ -181,6 +183,7 @@ function createPaintStroke(points, color) {
 }
 
 function getMousePosition(event) {
+  if (event.isKeyboard) return; // Skip for keyboard navigation
   const rect = renderer.domElement.getBoundingClientRect();
   const clientX = event.touches ? event.touches[0].clientX : event.clientX;
   const clientY = event.touches ? event.touches[0].clientY : event.clientY;
@@ -248,7 +251,7 @@ function startDrawing(event) {
 
 function draw(event) {
   if (!isDrawing) return;
-  event.preventDefault();
+  if (!event.isKeyboard) event.preventDefault();
   mouseMoved = true;
 
   getMousePosition(event);
@@ -339,6 +342,52 @@ renderer.domElement.addEventListener('mouseleave', stopDrawing);
 renderer.domElement.addEventListener('touchstart', startDrawing);
 renderer.domElement.addEventListener('touchmove', draw);
 renderer.domElement.addEventListener('touchend', stopDrawing);
+
+// Keyboard navigation for accessibility
+window.addEventListener('keydown', (event) => {
+  const step = 0.5;
+  let moved = false;
+
+  if (event.key === 'ArrowLeft') {
+    mouse.x = Math.max(-1, mouse.x - 0.05);
+    moved = true;
+  } else if (event.key === 'ArrowRight') {
+    mouse.x = Math.min(1, mouse.x + 0.05);
+    moved = true;
+  } else if (event.key === 'ArrowUp') {
+    mouse.y = Math.min(1, mouse.y + 0.05);
+    moved = true;
+  } else if (event.key === 'ArrowDown') {
+    mouse.y = Math.max(-1, mouse.y - 0.05);
+    moved = true;
+  } else if (event.key === ' ' || event.key === 'Enter') {
+    if (!isDrawing) {
+      startDrawing({ preventDefault: () => { }, target: renderer.domElement, clientX: 0, clientY: 0, isKeyboard: true });
+    }
+  } else if (event.key === 'w' || event.key === 'W') {
+    drawDistance = Math.min(40, drawDistance + 1);
+    updateDepthIndicator();
+    moved = true;
+  } else if (event.key === 's' || event.key === 'S') {
+    drawDistance = Math.max(5, drawDistance - 1);
+    updateDepthIndicator();
+    moved = true;
+  }
+
+  if (moved) {
+    updateCursor();
+    if (isDrawing) {
+      // Simulate a draw event
+      draw({ preventDefault: () => { }, isKeyboard: true });
+    }
+  }
+});
+
+window.addEventListener('keyup', (event) => {
+  if (event.key === ' ' || event.key === 'Enter') {
+    stopDrawing({ preventDefault: () => { } });
+  }
+});
 
 // Scroll wheel for depth control
 renderer.domElement.addEventListener('wheel', (event) => {

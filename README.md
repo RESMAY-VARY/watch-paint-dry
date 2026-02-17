@@ -20,8 +20,23 @@ A meditative and mesmerizing digital painting experience.
    ```
 4. Open the local URL in your browser.
 
+## Controls
+- **Mouse**: Click and drag to rotate the camera.
+- **Scroll Wheel**: Change painting depth.
+- **Keyboard Navigation**:
+  - **Arrow Keys**: Move the brush.
+  - **Space / Enter**: Apply paint.
+  - **W / S Keys**: Adjust depth.
+
+## Deployment
+This project is configured for **GitHub Pages**.
+1. Push your code to a GitHub repository named `watch-paint-dry`.
+2. Go to **Settings > Pages**.
+3. Set **Source** to **GitHub Actions**.
+4. GitHub will automatically detect the Vite config and deploy your site.
+
 ## Tech Stack
-- Vanilla JavaScript (focus on performance)
-- HTML5 Canvas API
-- CSS3 (Glassmorphism, animations)
-- Vite (fast tooling)
+- Vanilla JavaScript & Three.js
+- HTML5 Canvas / WebGL
+- CSS3 (Responsive & Accessible)
+- Vite (Build Tooling)
