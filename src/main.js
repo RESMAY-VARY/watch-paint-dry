@@ -294,11 +294,41 @@ function stopDrawing(event) {
     if (stroke) {
       scene.add(stroke);
       paintStrokes.push(stroke);
+      saveStrokes(); // Persistent save
     }
   }
 
   strokePoints = [];
 }
+
+// Persistence logic
+function saveStrokes() {
+  const serializedStrokes = paintStrokes.map(stroke => ({
+    points: stroke.geometry.parameters.path.points.map(p => ({ x: p.x, y: p.y, z: p.z })),
+    color: `#${stroke.material.color.getHexString()}`
+  }));
+  localStorage.setItem('paint3d_strokes', JSON.stringify(serializedStrokes));
+}
+
+function loadStrokes() {
+  const saved = localStorage.getItem('paint3d_strokes');
+  if (!saved) return;
+
+  try {
+    const serialized = JSON.parse(saved);
+    serialized.forEach(s => {
+      const points = s.points.map(p => new THREE.Vector3(p.x, p.y, p.z));
+      const stroke = createPaintStroke(points, hexToThreeColor(s.color));
+      if (stroke) {
+        scene.add(stroke);
+        paintStrokes.push(stroke);
+      }
+    });
+  } catch (e) {
+    console.error('Failed to load strokes', e);
+  }
+}
+loadStrokes();
 
 // Event listeners
 renderer.domElement.addEventListener('mousedown', startDrawing);
@@ -363,6 +393,7 @@ document.querySelectorAll('.color-btn').forEach(btn => {
 document.getElementById('clear-btn').addEventListener('click', () => {
   paintStrokes.forEach(stroke => scene.remove(stroke));
   paintStrokes = [];
+  localStorage.removeItem('paint3d_strokes');
 });
 
 document.getElementById('rotate-btn').addEventListener('click', () => {
