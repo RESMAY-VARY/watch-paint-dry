@@ -1,6 +1,7 @@
 // QMRG Mode for Watch Paint Dry
 // Laura Cruz - QMRG Theory Integration
 
+import * as THREE from 'three';
 import { initQMRGVisualization } from './qmrg_3d_visualization.js';
 
 class QMRGMode {

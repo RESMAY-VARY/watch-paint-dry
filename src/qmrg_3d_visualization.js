@@ -1,6 +1,8 @@
 // QMRG 3D Visualization for Watch Paint Dry
 // Laura Cruz - QMRG Theory Visualization
 
+import * as THREE from 'three';
+
 // QMRG Galaxy Data from your results
 const qmrgGalaxies = [
     {name: "NGC2841", L: 0.05, sigma0: 3521, type: "barred_spiral", chi2: 1.12},
