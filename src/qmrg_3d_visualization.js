@@ -241,38 +241,6 @@ class QMRGVisualization {
     }
 }
 
-// Integration with your Watch Paint Dry app
-export function initQMRGVisualization(scene, camera, renderer) {
-    const qmrgViz = new QMRGVisualization(scene, camera, renderer);
-    
-    // Add UI overlay
-    const infoDiv = document.createElement('div');
-    infoDiv.id = 'qmrg-info';
-    infoDiv.style.cssText = `
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        background: rgba(0,0,0,0.8);
-        color: white;
-        padding: 15px;
-        border-radius: 10px;
-        font-family: monospace;
-        z-index: 1000;
-    `;
-    
-    infoDiv.innerHTML = `
-        <h3>QMRG Visualization</h3>
-        <p>← → Arrow Keys: Switch Galaxies</p>
-        <p>Space: Toggle Q-Medium</p>
-        <p>Mouse: Rotate Camera</p>
-        <div id="galaxy-info"></div>
-    `;
-    
-    document.body.appendChild(infoDiv);
-    
-    return qmrgViz;
-}
-
 // Export function for integration
 export function initQMRGVisualization(scene, camera, renderer) {
     const qmrgViz = new QMRGVisualization(scene, camera, renderer);
