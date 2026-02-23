@@ -71,6 +71,9 @@ class QMRGMode {
         // Initialize QMRG visualization
         this.qmrgViz = initQMRGVisualization(this.scene, this.camera, this.renderer);
         
+        // Set up galaxy info updates
+        this.setupGalaxyInfoUpdates();
+        
         // Hide paint controls
         this.hidePaintControls();
         
@@ -78,6 +81,46 @@ class QMRGMode {
         this.showQMRGInfo();
         
         this.isActive = true;
+    }
+
+    setupGalaxyInfoUpdates() {
+        // Update galaxy info when switching galaxies
+        document.addEventListener('keydown', (event) => {
+            if (!this.isActive) return;
+            
+            if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+                setTimeout(() => {
+                    this.updateGalaxyInfo();
+                }, 100);
+            }
+        });
+        
+        // Initial update
+        setTimeout(() => {
+            this.updateGalaxyInfo();
+        }, 500);
+    }
+
+    updateGalaxyInfo() {
+        if (!this.qmrgViz || !this.qmrgViz.galaxies) return;
+        
+        const currentGalaxy = this.qmrgViz.galaxies[this.qmrgViz.currentGalaxy];
+        if (!currentGalaxy || !currentGalaxy.userData) return;
+        
+        const galaxy = currentGalaxy.userData;
+        
+        // Update info panel
+        const nameEl = document.getElementById('galaxy-name');
+        const lEl = document.getElementById('L-value');
+        const sigmaEl = document.getElementById('sigma0-value');
+        const typeEl = document.getElementById('galaxy-type');
+        const chi2El = document.getElementById('chi2-value');
+        
+        if (nameEl) nameEl.textContent = galaxy.name;
+        if (lEl) lEl.textContent = galaxy.L;
+        if (sigmaEl) sigmaEl.textContent = galaxy.sigma0;
+        if (typeEl) typeEl.textContent = galaxy.type.replace('_', ' ');
+        if (chi2El) chi2El.textContent = galaxy.chi2;
     }
 
     exitQMRGMode() {

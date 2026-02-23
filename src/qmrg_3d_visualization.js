@@ -272,3 +272,9 @@ export function initQMRGVisualization(scene, camera, renderer) {
     
     return qmrgViz;
 }
+
+// Export function for integration
+export function initQMRGVisualization(scene, camera, renderer) {
+    const qmrgViz = new QMRGVisualization(scene, camera, renderer);
+    return qmrgViz;
+}
