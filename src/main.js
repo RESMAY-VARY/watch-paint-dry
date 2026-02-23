@@ -1,6 +1,7 @@
 import './style.css'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { initQMRGMode } from './qmrg_mode.js'
 
 document.querySelector('#app').innerHTML = `
   <header class="title-card">
@@ -475,3 +476,6 @@ document.getElementById('speed-slider').addEventListener('input', (event) => {
   const speed = parseFloat(event.target.value);
   controls.autoRotateSpeed = speed;
 });
+
+// Initialize QMRG Mode
+const qmrgMode = initQMRGMode(scene, camera, renderer);
