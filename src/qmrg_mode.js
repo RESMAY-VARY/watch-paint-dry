@@ -3,6 +3,7 @@
 
 import * as THREE from 'three';
 import { initQMRGVisualization } from './qmrg_3d_visualization.js';
+import { QMRGLabels } from './qmrg_labels.js';
 
 class QMRGMode {
     constructor(scene, camera, renderer) {
@@ -13,6 +14,7 @@ class QMRGMode {
         this.qmrgViz = null;
         this.originalScene = null;
         this.originalCamera = null;
+        this.labels = null;
         
         this.createToggleButton();
     }
@@ -71,16 +73,70 @@ class QMRGMode {
         // Initialize QMRG visualization
         this.qmrgViz = initQMRGVisualization(this.scene, this.camera, this.renderer);
         
+        // Initialize labels system
+        this.labels = new QMRGLabels(this.scene, this.camera, this.renderer);
+        
         // Set up galaxy info updates
         this.setupGalaxyInfoUpdates();
+        this.setupKeyboardControls();
         
         // Hide paint controls
         this.hidePaintControls();
         
         // Show QMRG info panel
-        this.showQMRGInfo();
+        this.labels.show();
+        
+        // Create galaxy labels
+        if (this.qmrgViz && this.qmrgViz.galaxies) {
+            this.labels.createGalaxyLabels(this.qmrgViz.galaxies);
+        }
         
         this.isActive = true;
+    }
+
+    setupKeyboardControls() {
+        document.addEventListener('keydown', (event) => {
+            if (!this.isActive) return;
+            
+            switch(event.key) {
+                case 'ArrowLeft':
+                    this.previousGalaxy();
+                    break;
+                case 'ArrowRight':
+                    this.nextGalaxy();
+                    break;
+                case ' ':
+                    event.preventDefault();
+                    this.toggleQMedium();
+                    break;
+                case 'l':
+                case 'L':
+                    this.toggleLabels();
+                    break;
+                case 'k':
+                case 'K':
+                    this.toggleInfoPanel();
+                    break;
+            }
+        });
+    }
+
+    toggleLabels() {
+        if (this.labels) {
+            const currentState = this.labels.labels[0]?.visible;
+            this.labels.toggleLabels(!currentState);
+        }
+    }
+
+    toggleInfoPanel() {
+        if (this.labels) {
+            const currentState = this.labels.infoPanel?.style.display !== 'none';
+            if (currentState) {
+                this.labels.hide();
+            } else {
+                this.labels.show();
+            }
+        }
     }
 
     setupGalaxyInfoUpdates() {
@@ -141,7 +197,9 @@ class QMRGMode {
         this.showPaintControls();
         
         // Hide QMRG info panel
-        this.hideQMRGInfo();
+        if (this.labels) {
+            this.labels.hide();
+        }
         
         this.isActive = false;
     }
